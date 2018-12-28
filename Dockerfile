@@ -9,12 +9,11 @@ SHELL ["/bin/bash", "-c"]
 
 # Install InfluxDB:
 ###################
-RUN echo "\
-deb https://repos.influxdata.com/ubuntu bionic stable" >> \
-/etc/apt/sources.list.d/influxdb.list
 RUN curl -sL https://repos.influxdata.com/influxdb.key | apt-key add -
+RUN source /etc/lsb-release; \
+  echo "deb https://repos.influxdata.com/${DISTRIB_ID,,} ${DISTRIB_CODENAME} stable" | sudo tee /etc/apt/sources.list.d/influxdb.list
 RUN apt-get update
-RUN apt-get install influxdb
+RUN apt-get -y install influxdb
 RUN systemctl enable influxdb
 ###################
 
@@ -22,3 +21,6 @@ RUN systemctl enable influxdb
 ########
 RUN systemctl is-enabled influxdb
 ########
+
+ENTRYPOINT ["${SRC_DIR}/app-entrypoint.sh"]
+CMD ["/bin/bash"]
